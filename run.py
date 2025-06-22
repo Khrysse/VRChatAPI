@@ -43,7 +43,7 @@ def main():
         print("Virtual environment found.")
 
     print("Running VRChat authentication script...")
-    run_in_venv(["prelaunch/vrchat_auth.py"])
+    run_in_venv(["app/prelaunch/vrchat_auth.py"])
 
     print("Starting FastAPI server...")
 

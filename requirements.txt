@@ -3,4 +3,3 @@ uvicorn[standard]
 httpx
 orjson
 python-dotenv
-requests
