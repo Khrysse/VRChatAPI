@@ -6,13 +6,13 @@ import sys
 from pathlib import Path
 
 sys.path.append(str(Path(__file__).resolve().parent.parent)) 
-from env import CLIENT_NAME, API_BASE, TOKEN_FILE, IS_RENDER, ACCOUNT_JSON_URL, ACCOUNT_JSON_TOKEN
+from app.env import CLIENT_NAME, API_BASE, TOKEN_FILE, IS_RENDER, ACCOUNT_JSON_URL, ACCOUNT_JSON_TOKEN
 
 if IS_RENDER:
     import requests
     print("⚠️ Running in Render environment, downloading account.json with token in URL...")
 
-    url = f"{ACCOUNT_JSON_URL}?token={ACCOUNT_JSON_TOKEN}"
+    url = f"{ACCOUNT_URL_JSON}?token={ACCOUNT_JSON_TOKEN}"
 
     try:
         response = requests.get(url)
@@ -21,10 +21,14 @@ if IS_RENDER:
         print(f"❌ Failed to download account.json: {e}")
         sys.exit(1)
 
+    Path(TOKEN_FILE).parent.mkdir(parents=True, exist_ok=True)
+
     with open(TOKEN_FILE, "wb") as f:
         f.write(response.content)
 
     print("✅ account.json downloaded successfully.")
+    sys.exit(0)
+
 
 def save_token(data):
     data["created_at"] = datetime.now(timezone.utc).isoformat()
