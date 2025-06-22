@@ -12,7 +12,7 @@ if IS_RENDER:
     import requests
     print("⚠️ Running in Render environment, downloading account.json with token in URL...")
 
-    url = f"{ACCOUNT_URL_JSON}?token={ACCOUNT_JSON_TOKEN}"
+    url = f"{ACCOUNT_JSON_URL}?token={ACCOUNT_JSON_TOKEN}"
 
     try:
         response = requests.get(url)
