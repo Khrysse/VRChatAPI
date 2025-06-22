@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 from app.api.vrchat_users import router as users
 from app.api.vrchat_groups import router as groups
+from app.api.system import router as system
 
 app = FastAPI(
     title="K-API",
@@ -30,3 +31,4 @@ prefix = "/api"
 
 app.include_router(users, prefix=prefix, tags=["Users"])
 app.include_router(groups, prefix=prefix, tags=["Groups"])
+app.include_router(system, prefix=prefix, tags=["System"])
