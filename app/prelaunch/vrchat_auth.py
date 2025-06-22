@@ -25,7 +25,6 @@ if IS_RENDER:
         f.write(response.content)
 
     print("✅ account.json downloaded successfully.")
-    sys.exit(0)
 
 def save_token(data):
     data["created_at"] = datetime.now(timezone.utc).isoformat()
