@@ -1,6 +1,4 @@
-from fastapi import APIRouter, HTTPException
-import httpx
-import json
+from fastapi import APIRouter
 
 router = APIRouter()
 

@@ -17,7 +17,7 @@ app = FastAPI(
     - Automatic token management with 2FA handling
     - Public and private VRChat data endpoints
     - Response caching for performance
-    - Easy deployment on self-hosted servers (YunoHost compatible)
+    - Easy deployment on hosted servers (Render compatible)
     
     Built with FastAPI and async HTTPX for high performance and reliability.
     """,
