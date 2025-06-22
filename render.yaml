@@ -1,0 +1,15 @@
+services:
+  - type: web
+    name: vrchat-api
+    env: python
+    buildCommand: |
+      pip install --upgrade pip
+      pip install -r requirements.txt
+    startCommand: python run.py
+    envVars:
+      - key: CLIENT_NAME
+        value: YourAPIName/1.0
+      - key: VRCHAT_API_BASE
+        value: https://api.vrchat.cloud/api/1
+      - key: TOKEN_FILE
+        value: data/auth/account.json
