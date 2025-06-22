@@ -6,7 +6,11 @@ import sys
 from pathlib import Path
 
 sys.path.append(str(Path(__file__).resolve().parent.parent)) 
-from env import CLIENT_NAME, API_BASE, TOKEN_FILE
+from env import CLIENT_NAME, API_BASE, TOKEN_FILE, IS_RENDER
+
+if IS_RENDER:
+    print("⚠️ Running in Render environment, skipping VRChat auth.")
+    sys.exit(0)
 
 def save_token(data):
     data["created_at"] = datetime.now(timezone.utc).isoformat()
