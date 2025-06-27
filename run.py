@@ -5,7 +5,7 @@ import venv
 
 VENV_DIR = "venv"
 REQ_FILE = "requirements.txt"
-PORT = "8000"
+PORT = "8080"
 
 # INFORMATIONS : This file does not require “venv” to run, but make sure you have Python installed globally (py run.py on Windows, for example).
 # INFORMATIONS : This file does not require “venv” to run, but make sure you have Python installed globally (py run.py on Windows, for example).
