@@ -1,7 +1,13 @@
 from fastapi import FastAPI
+from app.api.vrchat_search import router as search
 from app.api.vrchat_users import router as users
 from app.api.vrchat_groups import router as groups
 from app.api.system import router as system
+from app.vrchat_context import VRChatContext
+
+def load_context():
+    VRChatContext.load()
+vrchat = VRChatContext.get()
 
 app = FastAPI(
     title="K-API",
@@ -24,11 +30,13 @@ app = FastAPI(
     swagger_ui_parameters={"defaultModelsExpandDepth": -1},
     docs_url="/docs",
     redoc_url=None,
-    openapi_url="/openapi.json",
-    contact={"name": "Kryscau", "url": "https://vrchat.com/home/user/usr_323befe7-edbc-46fe-af9d-560f7e6b290c", "email": "kryscau@kvs.fyi" }
+    openapi_url="/api.json",
+    contact={"name": "Unstealable", "url": "https://vrchat.com/home/user/usr_3e354294-5925-42bb-a5e6-511c39a390eb"}
 )
 prefix = "/api"
 
-app.include_router(users, prefix=prefix, tags=["Users"])
-app.include_router(groups, prefix=prefix, tags=["Groups"])
+if vrchat.auth_cookie:
+    app.include_router(search, prefix=prefix, tags=["Search"])
+    app.include_router(users, prefix=prefix, tags=["Users"])
+    app.include_router(groups, prefix=prefix, tags=["Groups"])
 app.include_router(system, prefix=prefix, tags=["System"])

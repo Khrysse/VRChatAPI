@@ -1,23 +1,22 @@
 from fastapi import APIRouter, HTTPException
 import httpx
 import json
-from app.env import CLIENT_NAME, API_BASE, TOKEN_FILE
+from app.env import CLIENT_NAME, API_BASE
+from app.vrchat_context import VRChatContext
 
 router = APIRouter()
 
-def load_token():
-    if not TOKEN_FILE.exists():
-        return None
-    with open(TOKEN_FILE, "r") as f:
-        return json.load(f)
+def load_context():
+    VRChatContext.load()
 
 @router.get("/groups/{group_id}")
 async def get_groups(group_id: str):
-    token = load_token()
-    if not token:
+    load_context()
+    vrchat = VRChatContext.get()
+    if not vrchat:
         raise HTTPException(status_code=401, detail="Token not found, please authenticate first")
 
-    auth_cookie = token.get("auth_cookie")
+    auth_cookie = vrchat.auth_cookie
     if not auth_cookie:
         raise HTTPException(status_code=401, detail="Auth cookie missing in token")
 
@@ -39,11 +38,12 @@ async def get_groups(group_id: str):
 
 @router.get("/groups/{group_id}/instances")
 async def get_groups_instances(group_id: str, user_id: str):
-    token = load_token()
-    if not token:
+    load_context()
+    vrchat = VRChatContext.get()
+    if not vrchat:
         raise HTTPException(status_code=401, detail="Token not found, please authenticate first")
 
-    auth_cookie = token.get("auth_cookie")
+    auth_cookie = vrchat.auth_cookie
     if not auth_cookie:
         raise HTTPException(status_code=401, detail="Auth cookie missing in token")
 
@@ -61,11 +61,12 @@ async def get_groups_instances(group_id: str, user_id: str):
 
 @router.get("/groups/{group_id}/posts")
 async def get_groups_posts(group_id: str):
-    token = load_token()
-    if not token:
+    load_context()
+    vrchat = VRChatContext.get()
+    if not vrchat:
         raise HTTPException(status_code=401, detail="Token not found, please authenticate first")
 
-    auth_cookie = token.get("auth_cookie")
+    auth_cookie = vrchat.auth_cookie
     if not auth_cookie:
         raise HTTPException(status_code=401, detail="Auth cookie missing in token")
 
@@ -89,11 +90,12 @@ async def get_groups_posts(group_id: str):
 
 @router.get("/groups/{group_id}/bans")
 async def get_groups_bans(group_id: str):
-    token = load_token()
-    if not token:
+    load_context()
+    vrchat = VRChatContext.get()
+    if not vrchat:
         raise HTTPException(status_code=401, detail="Token not found, please authenticate first")
 
-    auth_cookie = token.get("auth_cookie")
+    auth_cookie = vrchat.auth_cookie
     if not auth_cookie:
         raise HTTPException(status_code=401, detail="Auth cookie missing in token")
 
@@ -115,11 +117,12 @@ async def get_groups_bans(group_id: str):
 
 @router.get("/groups/{group_id}/roles")
 async def get_groups_roles(group_id: str):
-    token = load_token()
-    if not token:
+    load_context()
+    vrchat = VRChatContext.get()
+    if not vrchat:
         raise HTTPException(status_code=401, detail="Token not found, please authenticate first")
 
-    auth_cookie = token.get("auth_cookie")
+    auth_cookie = vrchat.auth_cookie
     if not auth_cookie:
         raise HTTPException(status_code=401, detail="Auth cookie missing in token")
 
@@ -137,11 +140,12 @@ async def get_groups_roles(group_id: str):
 
 @router.get("/groups/{group_id}/members")
 async def get_groups_members(group_id: str):
-    token = load_token()
-    if not token:
+    load_context()
+    vrchat = VRChatContext.get()
+    if not vrchat:
         raise HTTPException(status_code=401, detail="Token not found, please authenticate first")
 
-    auth_cookie = token.get("auth_cookie")
+    auth_cookie = vrchat.auth_cookie
     if not auth_cookie:
         raise HTTPException(status_code=401, detail="Auth cookie missing in token")
 

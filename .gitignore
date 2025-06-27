@@ -5,4 +5,5 @@ venv/
 *.log
 "@ | Out-File -Encoding utf8 .gitignore
 .env
-data/*
+data/
+account.json.php
