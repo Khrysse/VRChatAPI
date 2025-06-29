@@ -32,7 +32,7 @@ async def get_groups(group_id: str):
     return r.json()
 
 @router.get("/groups/{group_id}/instances")
-async def get_groups_instances(group_id: str, user_id: str):
+async def get_groups_instances(group_id: str):
     vrchat = get_context_safely()
     if not vrchat.auth_cookie or not vrchat.auth_cookie.startswith("authcookie_"):
         raise HTTPException(status_code=401, detail="Token not found, please authenticate first")
