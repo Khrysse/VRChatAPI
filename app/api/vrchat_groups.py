@@ -2,18 +2,13 @@ from fastapi import APIRouter, HTTPException
 import httpx
 import json
 from app.env import CLIENT_NAME, API_BASE
-from app.vrchat_context import VRChatContext
-
+from app.vrchat_context import get_context_safely
 router = APIRouter()
-
-def load_context():
-    VRChatContext.load()
 
 @router.get("/groups/{group_id}")
 async def get_groups(group_id: str):
-    load_context()
-    vrchat = VRChatContext.get()
-    if not vrchat:
+    vrchat = get_context_safely()
+    if not vrchat.auth_cookie or not vrchat.auth_cookie.startswith("authcookie_"):
         raise HTTPException(status_code=401, detail="Token not found, please authenticate first")
 
     auth_cookie = vrchat.auth_cookie
@@ -38,9 +33,8 @@ async def get_groups(group_id: str):
 
 @router.get("/groups/{group_id}/instances")
 async def get_groups_instances(group_id: str, user_id: str):
-    load_context()
-    vrchat = VRChatContext.get()
-    if not vrchat:
+    vrchat = get_context_safely()
+    if not vrchat.auth_cookie or not vrchat.auth_cookie.startswith("authcookie_"):
         raise HTTPException(status_code=401, detail="Token not found, please authenticate first")
 
     auth_cookie = vrchat.auth_cookie
@@ -61,9 +55,8 @@ async def get_groups_instances(group_id: str, user_id: str):
 
 @router.get("/groups/{group_id}/posts")
 async def get_groups_posts(group_id: str):
-    load_context()
-    vrchat = VRChatContext.get()
-    if not vrchat:
+    vrchat = get_context_safely()
+    if not vrchat.auth_cookie or not vrchat.auth_cookie.startswith("authcookie_"):
         raise HTTPException(status_code=401, detail="Token not found, please authenticate first")
 
     auth_cookie = vrchat.auth_cookie
@@ -90,9 +83,8 @@ async def get_groups_posts(group_id: str):
 
 @router.get("/groups/{group_id}/bans")
 async def get_groups_bans(group_id: str):
-    load_context()
-    vrchat = VRChatContext.get()
-    if not vrchat:
+    vrchat = get_context_safely()
+    if not vrchat.auth_cookie or not vrchat.auth_cookie.startswith("authcookie_"):
         raise HTTPException(status_code=401, detail="Token not found, please authenticate first")
 
     auth_cookie = vrchat.auth_cookie
@@ -117,9 +109,8 @@ async def get_groups_bans(group_id: str):
 
 @router.get("/groups/{group_id}/roles")
 async def get_groups_roles(group_id: str):
-    load_context()
-    vrchat = VRChatContext.get()
-    if not vrchat:
+    vrchat = get_context_safely()
+    if not vrchat.auth_cookie or not vrchat.auth_cookie.startswith("authcookie_"):
         raise HTTPException(status_code=401, detail="Token not found, please authenticate first")
 
     auth_cookie = vrchat.auth_cookie
@@ -140,9 +131,8 @@ async def get_groups_roles(group_id: str):
 
 @router.get("/groups/{group_id}/members")
 async def get_groups_members(group_id: str):
-    load_context()
-    vrchat = VRChatContext.get()
-    if not vrchat:
+    vrchat = get_context_safely()
+    if not vrchat.auth_cookie or not vrchat.auth_cookie.startswith("authcookie_"):
         raise HTTPException(status_code=401, detail="Token not found, please authenticate first")
 
     auth_cookie = vrchat.auth_cookie
@@ -162,5 +152,27 @@ async def get_groups_members(group_id: str):
 
     if r.status_code != 200:
         raise HTTPException(status_code=r.status_code, detail=f"Failed to fetch groups members info: {r.text}")
+
+    return r.json()
+
+@router.get("/groups/me")
+async def get_bot_groups_profile():
+    vrchat = get_context_safely()
+    if not vrchat.auth_cookie or not vrchat.auth_cookie.startswith("authcookie_"):
+        raise HTTPException(status_code=401, detail="Token not found, please authenticate first")
+
+    auth_cookie = vrchat.auth_cookie
+    if not auth_cookie:
+        raise HTTPException(status_code=401, detail="Auth cookie missing in token")
+
+    headers = {"User-Agent": CLIENT_NAME}
+    cookies = {"auth": auth_cookie}
+    url = f"{API_BASE}/groups/me"
+
+    async with httpx.AsyncClient() as client:
+        r = await client.get(url, headers=headers, cookies=cookies)
+
+    if r.status_code != 200:
+        raise HTTPException(status_code=r.status_code, detail=f"Failed to fetch bot groups profile info: {r.text}")
 
     return r.json()

@@ -1,11 +1,13 @@
+from http.client import HTTPException
 import json
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Optional
 import os
 import httpx
-
-from app.env import IS_DISTANT
+from fastapi import HTTPException
+import sys
+from app.env import IS_DISTANT, DISTANT_URL_CONTEXT, TOKEN_FILE
 
 @dataclass
 class VRChatData:
@@ -29,18 +31,18 @@ class VRChatContext:
             cls._load_from_local()
 
     @classmethod
-    def _load_from_local(cls, path: Path = Path("data/account.json")):
+    def _load_from_local(cls, path: Path = Path(TOKEN_FILE)):
         if not path.exists():
-            raise FileNotFoundError(f"account.json file not found: {path}")
+            raise FileNotFoundError(f"{TOKEN_FILE} file not found: {path}")
         with open(path, "r", encoding="utf-8") as f:
             data = json.load(f)
         cls._set_instance(data)
 
     @classmethod
     def _load_from_remote(cls):
-        remote_url = os.getenv("DISTANT_TOKEN_URL")
+        remote_url = DISTANT_URL_CONTEXT
         if not remote_url:
-            raise EnvironmentError("DISTANT_TOKEN_URL is not defined in environment")
+            raise EnvironmentError("DISTANT_URL_CONTEXT is not defined in environment")
 
         try:
             response = httpx.get(remote_url, timeout=5.0)
@@ -66,3 +68,13 @@ class VRChatContext:
         if not cls._instance or not cls._instance._token:
             raise RuntimeError("VRChatContext not initialized. Call VRChatContext.load() first.")
         return cls._instance._token
+
+def get_context_safely():
+    try:
+        VRChatContext.load()
+        return VRChatContext.get()
+    except Exception as e:
+        if "uvicorn" in sys.argv[0] or "main.py" in sys.argv[0]:
+            raise HTTPException(status_code=500, detail=f"VRChatContext init failed: {str(e)}")
+        else:
+            raise RuntimeError(f"VRChatContext init failed: {str(e)}")

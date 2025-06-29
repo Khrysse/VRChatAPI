@@ -2,18 +2,13 @@ from fastapi import APIRouter, HTTPException
 import httpx
 import json
 from app.env import CLIENT_NAME, API_BASE
-from app.vrchat_context import VRChatContext
-
+from app.vrchat_context import get_context_safely
 router = APIRouter()
-
-def load_context():
-    VRChatContext.load()
 
 @router.get("/users/me")
 async def get_bot_users_profile():
-    load_context()
-    vrchat = VRChatContext.get()
-    if not vrchat:
+    vrchat = get_context_safely()
+    if not vrchat.auth_cookie or not vrchat.auth_cookie.startswith("authcookie_"):
         raise HTTPException(status_code=401, detail="Token not found, please authenticate first")
 
     auth_cookie = vrchat.auth_cookie
@@ -34,9 +29,8 @@ async def get_bot_users_profile():
 
 @router.get("/users/{user_id}")
 async def get_user(user_id: str):
-    load_context()
-    vrchat = VRChatContext.get()
-    if not vrchat:
+    vrchat = get_context_safely()
+    if not vrchat.auth_cookie or not vrchat.auth_cookie.startswith("authcookie_"):
         raise HTTPException(status_code=401, detail="Token not found, please authenticate first")
 
     auth_cookie = vrchat.auth_cookie
@@ -57,9 +51,8 @@ async def get_user(user_id: str):
 
 @router.get("/users/{user_id}/friends/status")
 async def get_user_friend_status(user_id: str):
-    load_context()
-    vrchat = VRChatContext.get()
-    if not vrchat:
+    vrchat = get_context_safely()
+    if not vrchat.auth_cookie or not vrchat.auth_cookie.startswith("authcookie_"):
         raise HTTPException(status_code=401, detail="Token not found, please authenticate first")
 
     auth_cookie = vrchat.auth_cookie
@@ -80,9 +73,8 @@ async def get_user_friend_status(user_id: str):
 
 @router.get("/users/{user_id}/worlds")
 async def get_user_worlds(user_id: str):
-    load_context()
-    vrchat = VRChatContext.get()
-    if not vrchat:
+    vrchat = get_context_safely()
+    if not vrchat.auth_cookie or not vrchat.auth_cookie.startswith("authcookie_"):
         raise HTTPException(status_code=401, detail="Token not found, please authenticate first")
 
     auth_cookie = vrchat.auth_cookie
@@ -111,9 +103,8 @@ async def get_user_worlds(user_id: str):
 
 @router.get("/users/{user_id}/groups")
 async def get_user_groups(user_id: str):
-    load_context()
-    vrchat = VRChatContext.get()
-    if not vrchat:
+    vrchat = get_context_safely()
+    if not vrchat.auth_cookie or not vrchat.auth_cookie.startswith("authcookie_"):
         raise HTTPException(status_code=401, detail="Token not found, please authenticate first")
 
     auth_cookie = vrchat.auth_cookie
