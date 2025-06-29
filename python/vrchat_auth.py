@@ -35,9 +35,9 @@ def load_token():
 
 def login_via_webhook():
     import time
-    # Demande credentials via webhook
+    # Request for credentials via webhook
     httpx.post("http://localhost:8080/webhook/auth/status", json={"status": "NEED_CREDENTIALS", "last_error": None, "display_name": None, "user_id": None})
-    print("🔗 En attente des credentials via interface web (hook)...")
+    print("🔗 Waiting for credentials via web interface (hook)...")
     for _ in range(300):
         r = httpx.get("http://localhost:8080/webhook/auth/status")
         if r.status_code == 200 and r.json().get("status") == "GOT_CREDENTIALS":
