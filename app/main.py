@@ -1,7 +1,7 @@
 import sys
 import uvicorn
 from fastapi import FastAPI
-
+from fastapi.middleware.cors import CORSMiddleware
 from app.api.vrchat_search import router as search
 from app.api.vrchat_users import router as users
 from app.api.vrchat_groups import router as groups
@@ -61,3 +61,10 @@ if __name__ == "__main__":
         uvicorn.run(create_main_app(), host="0.0.0.0", port=8080, reload=True)
 
 app = create_main_app()  # Pour compatibilité avec uvicorn app.main:app
+app.add_middleware(
+    CORSMiddleware,
+        allow_origins=["*"],  # wildcard pour autoriser toutes les origines
+            allow_credentials=True,
+                allow_methods=["GET", "POST", "OPTIONS"],  # les méthodes dont vous avez besoin
+                    allow_headers=["*"],  # autorise tous les headers
+                    )
