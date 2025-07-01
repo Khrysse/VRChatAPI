@@ -1,6 +1,5 @@
 <?php
-// Proxy PHP pour éviter le CORS
-$local_api_base = 'http://127.0.0.1:8080';
+$local_api_base = 'https://api-vrc.kinsta.app';
 $api_path_prefix = '/webhook/auth';
 
 function api_get($url) {

@@ -27,10 +27,16 @@ function pollStatus() {
           document.getElementById("loading").classList.add("hidden");
           document.getElementById("error").classList.add("hidden");
           let formType = null;
-          if (data.status === "NEED_CREDENTIALS") formType = "login";
-          else if (data.status === "NEED_2FA") formType = "2fa";
-          else if (data.status === "CONNECTED") formType = null;
-          let showNoConn = !formType && data.status !== "CONNECTED";
+          if (data.status === "NEED_CREDENTIALS")
+            formType = "login" && console.log("Hook:", data.status);
+          else if (data.status === "NEED_2FA")
+            formType = "2fa" && console.log("Hook:", data.status);
+          else if (data.status === "CONNECTED")
+            formType = null && console.log("Hook:", data.status);
+          let showNoConn =
+            !formType &&
+            data.status !== "CONNECTED" &&
+            console.log("Hook:", data.status);
           if (
             formType === "login" ||
             formType === "2fa" ||

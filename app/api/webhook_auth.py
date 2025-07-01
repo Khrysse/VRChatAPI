@@ -15,6 +15,7 @@ state_lock = threading.Lock()
 
 @router.get("/status")
 def get_status():
+    """Get the current status of the VRChat connection."""
     with state_lock:
         return {
             "status": shared_state["status"],
@@ -25,6 +26,8 @@ def get_status():
 
 @router.get("/status/short")
 def get_status_short():
+    """Get a short version of the current status."""
+    """This returns only the status and last error."""
     with state_lock:
         return {
             "status": shared_state["status"],
@@ -33,6 +36,8 @@ def get_status_short():
 
 @router.get("/vrchat/connected")
 def get_connected():
+    """Check if the VRChat connection is established and return user info."""
+    """Returns display name and user ID if connected."""
     with state_lock:
         if shared_state["status"] == "CONNECTED":
             return {
@@ -43,6 +48,8 @@ def get_connected():
 
 @router.post("/login")
 def post_login(data: dict):
+    """Receive credentials for VRChat login."""
+    """Expects a JSON body with 'username' and 'password'."""
     with state_lock:
         shared_state["credentials"] = {
             "username": data.get("username"),
@@ -54,6 +61,8 @@ def post_login(data: dict):
 
 @router.get("/login")
 def get_login():
+    """Get the credentials that were posted for VRChat login."""
+    """Returns the credentials if they were set, otherwise returns an empty object."""
     with state_lock:
         creds = shared_state["credentials"]
         if creds:
@@ -63,6 +72,8 @@ def get_login():
 
 @router.post("/2fa")
 def post_2fa(data: dict):
+    """Receive 2FA code for VRChat login."""
+    """Expects a JSON body with 'code'."""
     with state_lock:
         shared_state["2fa_code"] = data.get("code")
         shared_state["status"] = "GOT_2FA"
@@ -71,6 +82,8 @@ def post_2fa(data: dict):
 
 @router.get("/2fa")
 def get_2fa():
+    """Get the 2FA code that was posted for VRChat login."""
+    """Returns the 2FA code if it was set, otherwise returns an empty object."""
     with state_lock:
         code = shared_state["2fa_code"]
         if code:
@@ -80,6 +93,8 @@ def get_2fa():
 
 @router.post("/status")
 def set_status(data: dict):
+    """Update the status of the VRChat connection."""
+    """Expects a JSON body with 'status', 'last_error', 'display_name', and 'user_id'."""
     with state_lock:
         shared_state["status"] = data.get("status", shared_state["status"])
         if "last_error" in data:

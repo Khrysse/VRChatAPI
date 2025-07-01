@@ -1,5 +1,5 @@
 <?php
-$local_api_base = 'http://127.0.0.1:8080';
+$local_api_base = 'https://api-vrc.kinsta.app';
 $api_path_prefix = '/webhook/auth';
 
 function api_get($url) {
@@ -84,7 +84,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
-// Affichage de l'utilisateur connecté si CONNECTED
 $connected = null;
 if ($status === 'CONNECTED') {
     $connected = api_get($local_api_base . $api_path_prefix . '/connected');
@@ -95,16 +94,16 @@ if ($status === 'CONNECTED') {
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>VRChat API Hooks</title>
-    <link rel="stylesheet" href="/assets/css/design.css">
-    <script type="text/javascript" src="/assets/js/poll.js"></script>
+    <title>Hooks / US VRChat Bridge</title>
+    <link rel="stylesheet" href="assets/css/design.css">
+    <script type="text/javascript" src="assets/js/poll.js"></script>
 </head>
 <body>
     <!-- Header -->
     <header class="header">
         <div class="header-content">
-            <div class="logo">VR</div>
-            <h1>VRChat API Hooks</h1>
+            <div class="logo">US</div>
+            <h1>VRChat Bridge's Hook</h1>
         </div>
     </header>
 
@@ -112,9 +111,9 @@ if ($status === 'CONNECTED') {
     <main class="main">
         <div class="card">
             <div class="card-header">
-                <div class="card-logo">VR</div>
+                <div class="card-logo">US</div>
                 <h2 class="card-title">Authentication</h2>
-                <p class="card-description">Connect to VRChat API services</p>
+                <p class="card-description">Connect to VRChat API services via VRChat Bridge</p>
             </div>
 
             <div class="card-content">
