@@ -1,6 +1,7 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Query
 import httpx
 import json
+from typing import Optional
 from app.env import CLIENT_NAME, API_BASE
 from app.vrchat_context import get_context_safely
 router = APIRouter()
@@ -25,8 +26,8 @@ async def get_if_exists_per_type(type: str, text: str):
 
     return r.json()
 
-@router.get("/search/{type}/{search_text}?n={n}")
-async def search_by_type(type: str, search_text: str, n: int = 12):
+@router.get("/search/{type}/{search_text}")
+async def search_by_type(type: str, search_text: str, n: int = Query(default=12)):
     """Search for users or worlds by type and search text."""
     if type not in ["users", "worlds"]:
         raise HTTPException(status_code=400, detail="Invalid type, must be 'users' or 'worlds'")

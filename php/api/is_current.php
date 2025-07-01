@@ -1,5 +1,5 @@
 <?php
-$local_api_base = 'https://api-vrc.kinsta.app';
+$local_api_base = 'http://localhost:8080';
 $api_path_prefix = '/webhook/auth';
 
 function api_get($url) {

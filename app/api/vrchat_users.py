@@ -1,6 +1,7 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Query
 import httpx
 import json
+from typing import Optional
 from app.env import CLIENT_NAME, API_BASE
 from app.vrchat_context import get_context_safely
 router = APIRouter()
@@ -97,8 +98,8 @@ async def get_user_groups(user_id: str):
 
     return r.json()
 
-@router.get("/users/{user_id}/worlds?n={n}&offset={offset}")
-async def get_user_worlds(user_id: str, n: int = 100, offset: int = 0):
+@router.get("/users/{user_id}/worlds")
+async def get_user_worlds(user_id: str, n: int = Query(default=100), offset: int = Query(default=0)):
     """Get the worlds created by a user by user ID."""
     vrchat = get_context_safely()
     if not vrchat.auth_cookie or not vrchat.auth_cookie.startswith("authcookie_"):

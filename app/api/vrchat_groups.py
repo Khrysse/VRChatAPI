@@ -1,6 +1,7 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Query
 import httpx
 import json
+from typing import Optional
 from app.env import CLIENT_NAME, API_BASE
 from app.vrchat_context import get_context_safely
 router = APIRouter()
@@ -56,8 +57,8 @@ async def get_groups_instances(group_id: str):
 
     return r.json()
 
-@router.get("/groups/{group_id}/posts?n={n}&offset={offset}")
-async def get_groups_posts(group_id: str, n: int = 10, offset: int = 0):
+@router.get("/groups/{group_id}/posts")
+async def get_groups_posts(group_id: str, n: int = Query(default=10), offset: int = Query(default=0)):
     """Get posts of a specific group by its ID."""
     """This endpoint requires the group ID to be passed as a query parameter."""
     """The group ID is used to fetch the posts related to the group."""
@@ -90,8 +91,8 @@ async def get_groups_posts(group_id: str, n: int = 10, offset: int = 0):
     return r.json()
 
 
-@router.get("/groups/{group_id}/bans?n={n}&offset={offset}")
-async def get_groups_bans(group_id: str, n: int = 51, offset: int = 0):
+@router.get("/groups/{group_id}/bans")
+async def get_groups_bans(group_id: str, n: int = Query(default=51), offset: int = Query(default=0)):
     """Get bans of a specific group by its ID."""
     """This endpoint requires the group ID to be passed as a query parameter."""
     """The group ID is used to fetch the bans related to the group."""
@@ -148,8 +149,8 @@ async def get_groups_roles(group_id: str):
 
     return r.json()
 
-@router.get("/groups/{group_id}/members?n={n}&offset={offset}")
-async def get_groups_members(group_id: str, n: int = 25, offset: int = 0):
+@router.get("/groups/{group_id}/members")
+async def get_groups_members(group_id: str, n: int = Query(default=12), offset: int = Query(default=0)):
     """Get members of a specific group by its ID."""
     """This endpoint requires the group ID to be passed as a query parameter."""
     """The group ID is used to fetch the members related to the group."""
