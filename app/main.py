@@ -40,7 +40,7 @@ Built with FastAPI and async HTTPX for high performance and reliability.
     if vrchat.auth_cookie.startswith("authcookie_"):
         app.include_router(users, prefix=prefix, tags=["Users"])
         app.include_router(groups, prefix=prefix, tags=["Groups"])
-    app.include_router(search, prefix=prefix, tags=["Search"])
+        app.include_router(search, prefix=prefix, tags=["Search"])
     app.include_router(system, prefix=prefix, tags=["System"])
 
     return app
