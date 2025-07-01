@@ -36,11 +36,17 @@ Built with FastAPI and async HTTPX for high performance and reliability.
     )
 
     prefix = "/api"
-    vrchat = get_context_safely()
-    if vrchat.auth_cookie.startswith("authcookie_"):
-        app.include_router(users, prefix=prefix, tags=["Users"])
-        app.include_router(groups, prefix=prefix, tags=["Groups"])
-        app.include_router(search, prefix=prefix, tags=["Search"])
+    try:
+        vrchat = get_context_safely()
+        if vrchat and getattr(vrchat, "auth_cookie", None) and vrchat.auth_cookie.startswith("authcookie_"):
+            app.include_router(users, prefix=prefix, tags=["Users"])
+            app.include_router(groups, prefix=prefix, tags=["Groups"])
+            app.include_router(search, prefix=prefix, tags=["Search"])
+        else:
+            print("[WARN] No valid VRChat token found. Only public/system endpoints will be available.", flush=True)
+    except Exception as e:
+        print(f"[ERROR] Failed to load VRChat context: {e}", flush=True)
+        print("[WARN] Only public/system endpoints will be available.", flush=True)
     app.include_router(system, prefix=prefix, tags=["System"])
 
     return app

@@ -25,39 +25,37 @@ async def get_if_exists_per_type(type: str, text: str):
 
     return r.json()
 
-vrchat = get_context_safely()
-if vrchat.auth_cookie.startswith("authcookie_"):
-    @router.get("/search/{type}/{search_text}?n={n}")
-    async def search_by_type(type: str, search_text: str, n: int = 12):
-        """Search for users or worlds by type and search text."""
-        if type not in ["users", "worlds"]:
-            raise HTTPException(status_code=400, detail="Invalid type, must be 'users' or 'worlds'")
-        
-        if not search_text:
-            raise HTTPException(status_code=400, detail="Search text cannot be empty")
-        
-        vrchat = get_context_safely()
-        if not vrchat.auth_cookie or not vrchat.auth_cookie.startswith("authcookie_"):
-            raise HTTPException(status_code=401, detail="Token not found, please authenticate first")
+@router.get("/search/{type}/{search_text}?n={n}")
+async def search_by_type(type: str, search_text: str, n: int = 12):
+    """Search for users or worlds by type and search text."""
+    if type not in ["users", "worlds"]:
+        raise HTTPException(status_code=400, detail="Invalid type, must be 'users' or 'worlds'")
+    
+    if not search_text:
+        raise HTTPException(status_code=400, detail="Search text cannot be empty")
+    
+    vrchat = get_context_safely()
+    if not vrchat.auth_cookie or not vrchat.auth_cookie.startswith("authcookie_"):
+        raise HTTPException(status_code=401, detail="Token not found, please authenticate first")
 
-        auth_cookie = vrchat.auth_cookie
-        if not auth_cookie:
-            raise HTTPException(status_code=401, detail="Auth cookie missing in token")
+    auth_cookie = vrchat.auth_cookie
+    if not auth_cookie:
+        raise HTTPException(status_code=401, detail="Auth cookie missing in token")
 
-        headers = {"User-Agent": CLIENT_NAME}
-        cookies = {"auth": auth_cookie}
-        params = {
-            "sort": "relevance",
-            "fuzzy": "false",
-            "search": search_text,
-            "n": str(n)
-        }   
-        url = f"{API_BASE}/{type}"
+    headers = {"User-Agent": CLIENT_NAME}
+    cookies = {"auth": auth_cookie}
+    params = {
+        "sort": "relevance",
+        "fuzzy": "false",
+        "search": search_text,
+        "n": str(n)
+    }   
+    url = f"{API_BASE}/{type}"
 
-        async with httpx.AsyncClient() as client:
-            r = await client.get(url, headers=headers, cookies=cookies, params=params)
+    async with httpx.AsyncClient() as client:
+        r = await client.get(url, headers=headers, cookies=cookies, params=params)
 
-        if r.status_code != 200:
-            raise HTTPException(status_code=r.status_code, detail=f"Failed to search {type} by: {r.text}")
+    if r.status_code != 200:
+        raise HTTPException(status_code=r.status_code, detail=f"Failed to search {type} by: {r.text}")
 
-        return r.json()
+    return r.json()
