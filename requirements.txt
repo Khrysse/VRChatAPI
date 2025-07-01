@@ -4,3 +4,5 @@ httpx
 orjson
 python-dotenv
 email-validator
+requests
+pydantic

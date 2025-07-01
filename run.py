@@ -64,6 +64,11 @@ def main():
     else:
         print("Virtual environment found.", flush=True)
 
+    # S'assurer que le fichier token existe (même vide)
+    if not TOKEN_FILE.exists():
+        TOKEN_FILE.parent.mkdir(parents=True, exist_ok=True)
+        TOKEN_FILE.write_text("{}")
+
     env = os.environ.copy()
     env["PYTHONPATH"] = project_root + os.pathsep + env.get("PYTHONPATH", "")
 

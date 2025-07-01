@@ -4,10 +4,13 @@ import json
 from datetime import datetime, timedelta, timezone
 import sys
 from pathlib import Path
+import os
 
 sys.path.append(str(Path(__file__).resolve().parent.parent)) 
 from app.env import CLIENT_NAME, API_BASE, TOKEN_FILE, IS_DISTANT, DISTANT_URL_CONTEXT 
 from app.vrchat_context import get_context_safely
+
+WEBHOOK_URL = os.environ.get("WEBHOOK_URL", "http://localhost:8080/webhook/auth")
 
 def verify_auth_cookie(auth_cookie):
     cookies = {"auth": auth_cookie}
@@ -35,13 +38,13 @@ def load_token():
 
 def login_via_webhook():
     import time
-    # Request for credentials via webhook
-    httpx.post("http://localhost:8080/webhook/auth/status", json={"status": "NEED_CREDENTIALS", "last_error": None, "display_name": None, "user_id": None})
+    # Demande credentials via webhook
+    httpx.post(f"{WEBHOOK_URL}/status", json={"status": "NEED_CREDENTIALS", "last_error": None, "display_name": None, "user_id": None})
     print("🔗 Waiting for credentials via web interface (hook)...")
     for _ in range(300):
-        r = httpx.get("http://localhost:8080/webhook/auth/status")
+        r = httpx.get(f"{WEBHOOK_URL}/status")
         if r.status_code == 200 and r.json().get("status") == "GOT_CREDENTIALS":
-            creds = httpx.get("http://localhost:8080/webhook/auth/login").json()
+            creds = httpx.get(f"{WEBHOOK_URL}/login").json()
             username = creds.get("username")
             password = creds.get("password")
             if username and password:
@@ -49,7 +52,7 @@ def login_via_webhook():
         time.sleep(1)
     else:
         print("⏰ Timeout credentials.")
-        httpx.post("http://localhost:8080/webhook/auth/status", json={"status": "IDLE", "last_error": "Timeout credentials"})
+        httpx.post(f"{WEBHOOK_URL}/status", json={"status": "IDLE", "last_error": "Timeout credentials"})
         return None
     manual_username = username
     password = password
@@ -64,35 +67,35 @@ def login_via_webhook():
         r = client.get("/auth/user")
         if r.status_code != 200:
             print("❌ Connection failed:", r.text)
-            httpx.post("http://localhost:8080/webhook/auth/status", json={"status": "IDLE", "last_error": "Login failed"})
+            httpx.post(f"{WEBHOOK_URL}/status", json={"status": "IDLE", "last_error": "Login failed"})
             return None
         data = r.json()
         if "requiresTwoFactorAuth" in data:
             mfa_types = data["requiresTwoFactorAuth"]
             print(f"🔐 2FA required: {mfa_types}")
-            httpx.post("http://localhost:8080/webhook/auth/status", json={"status": "NEED_2FA"})
+            httpx.post(f"{WEBHOOK_URL}/status", json={"status": "NEED_2FA"})
             client.headers.pop("Authorization", None)
             for _ in range(180):
-                r2fa = httpx.get("http://localhost:8080/webhook/auth/2fa")
+                r2fa = httpx.get(f"{WEBHOOK_URL}/2fa")
                 code = r2fa.json().get("code")
                 if code:
                     break
                 time.sleep(1)
             else:
                 print("⏰ Timeout 2FA.")
-                httpx.post("http://localhost:8080/webhook/auth/status", json={"status": "IDLE", "last_error": "Timeout 2FA"})
+                httpx.post(f"{WEBHOOK_URL}/status", json={"status": "IDLE", "last_error": "Timeout 2FA"})
                 return None
             verify_endpoint = "/auth/twofactorauth/verify" if "otp" in mfa_types else "/auth/twofactorauth/emailotp/verify"
             r2 = client.post(verify_endpoint, json={"code": code})
             if r2.status_code != 200 or not r2.json().get("verified", False):
                 print("❌ 2FA verification failed:", r2.text)
-                httpx.post("http://localhost:8080/webhook/auth/status", json={"status": "IDLE", "last_error": "2FA failed"})
+                httpx.post(f"{WEBHOOK_URL}/status", json={"status": "IDLE", "last_error": "2FA failed"})
                 return None
             print("✅ 2FA verified!")
             r3 = client.get("/auth/user")
             if r3.status_code != 200:
                 print("❌ Failed to fetch user data after 2FA:", r3.text)
-                httpx.post("http://localhost:8080/webhook/auth/status", json={"status": "IDLE", "last_error": "Failed to fetch user after 2FA"})
+                httpx.post(f"{WEBHOOK_URL}/status", json={"status": "IDLE", "last_error": "Failed to fetch user after 2FA"})
                 return None
             data = r3.json()
     auth_cookie = None
@@ -102,16 +105,16 @@ def login_via_webhook():
             break
     if not auth_cookie:
         print("❌ Auth cookie not found after login.")
-        httpx.post("http://localhost:8080/webhook/auth/status", json={"status": "IDLE", "last_error": "No auth cookie"})
+        httpx.post(f"{WEBHOOK_URL}/status", json={"status": "IDLE", "last_error": "No auth cookie"})
         return None
     if not verify_auth_cookie(auth_cookie):
         print("❌ Auth cookie invalid.")
-        httpx.post("http://localhost:8080/webhook/auth/status", json={"status": "IDLE", "last_error": "Invalid auth cookie"})
+        httpx.post(f"{WEBHOOK_URL}/status", json={"status": "IDLE", "last_error": "Invalid auth cookie"})
         return None
     display_name = data.get("displayName", manual_username)
     user_id = data.get("id", "")
     print("✅ Connected and verified.")
-    httpx.post("http://localhost:8080/webhook/auth/status", json={"status": "CONNECTED", "display_name": display_name, "user_id": user_id})
+    httpx.post(f"{WEBHOOK_URL}/status", json={"status": "CONNECTED", "display_name": display_name, "user_id": user_id})
     return {
         "manual_username": manual_username,
         "displayName": display_name,
