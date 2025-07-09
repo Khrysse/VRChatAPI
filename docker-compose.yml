@@ -3,6 +3,18 @@ services:
   vrchat:
     build: .
     ports:
-      - "8000:8000" # Python API
-      - "8080:8080" # Apache/PHP
+      - "${PORT}:${PORT}"
+      - "${APACHE_PORT}:${APACHE_PORT}"
+    environment:
+      - PORT=${PORT}
+      - APACHE_PORT=${APACHE_PORT}
+      - API_IS_PUBLIC=${API_IS_PUBLIC}
+      - CORS_ALLOWED_ORIGINS=${CORS_ALLOWED_ORIGINS}
+      - DISCORD_WEBHOOK_URL=${DISCORD_WEBHOOK_URL}
+      - DISCORD_USER_ID=${DISCORD_USER_ID}
+      - CLIENT_NAME=${CLIENT_NAME}
+      - VRCHAT_API_BASE=${VRCHAT_API_BASE}
+      - TOKEN_FILE=${TOKEN_FILE}
+      - IS_DISTANT=${IS_DISTANT}
+      - DISTANT_URL_CONTEXT=${DISTANT_URL_CONTEXT}
     container_name: vrchat_bridge

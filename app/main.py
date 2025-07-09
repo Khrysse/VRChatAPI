@@ -3,13 +3,19 @@ import sys
 import uvicorn
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
+from fastapi.requests import Request
+from fastapi.exception_handlers import RequestValidationError
+from fastapi.exceptions import HTTPException
+from starlette.status import HTTP_500_INTERNAL_SERVER_ERROR
 from app.api.vrchat_search import router as search
 from app.api.vrchat_users import router as users
 from app.api.vrchat_groups import router as groups
 from app.api.system import router as system
 from app.vrchat_context import get_context_safely
 from app.api.webhook_auth import router as webhook_auth
-from app.env import PORT
+from app.env import PORT, API_IS_PUBLIC, CORS_ALLOWED_ORIGINS
+
 
 def create_main_app():
     app = FastAPI(
@@ -50,6 +56,27 @@ Built with FastAPI and async HTTPX for high performance and reliability.
         print("[WARN] Only public/system endpoints will be available.", flush=True)
     app.include_router(system, prefix=prefix, tags=["System"])
 
+    @app.exception_handler(HTTPException)
+    async def http_exception_handler(request: Request, exc: HTTPException):
+        return JSONResponse(
+            status_code=exc.status_code,
+            content={"error": exc.detail, "code": exc.status_code}
+        )
+
+    @app.exception_handler(RequestValidationError)
+    async def validation_exception_handler(request: Request, exc: RequestValidationError):
+        return JSONResponse(
+            status_code=422,
+            content={"error": "Validation error", "details": exc.errors()}
+        )
+
+    @app.exception_handler(Exception)
+    async def generic_exception_handler(request: Request, exc: Exception):
+        return JSONResponse(
+            status_code=HTTP_500_INTERNAL_SERVER_ERROR,
+            content={"error": "Internal server error"}
+        )
+
     return app
 
 
@@ -67,10 +94,15 @@ if __name__ == "__main__":
         uvicorn.run(create_main_app(), host="0.0.0.0", port=PORT, reload=True)
 
 app = create_main_app() 
+if API_IS_PUBLIC:
+    allow_origins = ["*"]
+else:
+    allow_origins = [CORS_ALLOWED_ORIGINS]
+
 app.add_middleware(
     CORSMiddleware,
-        allow_origins=["*"],
-            allow_credentials=True,
-                allow_methods=["GET", "POST", "OPTIONS"], 
-                    allow_headers=["*"], 
-                    )
+    allow_origins=allow_origins,
+    allow_credentials=True,
+    allow_methods=["GET", "POST", "OPTIONS"],
+    allow_headers=["*"],
+)

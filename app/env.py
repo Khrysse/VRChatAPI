@@ -11,3 +11,9 @@ TOKEN_FILE = Path(os.getenv("TOKEN_FILE", "data/auth/account.json"))
 IS_DISTANT = os.getenv("IS_DISTANT", "false").lower() in ("1", "true", "yes")
 DISTANT_URL_CONTEXT = os.getenv("DISTANT_URL_CONTEXT", "")
 PORT = os.environ.get("PORT", "8080")
+API_IS_PUBLIC = os.environ.get("API_IS_PUBLIC", "true").lower() in ("1", "true", "yes")
+API_DOMAIN = os.environ.get("API_DOMAIN", "unstealable.cloud")
+CORS_ALLOWED_ORIGINS = [
+    f"https://{API_DOMAIN}",
+    f"https://*.{API_DOMAIN}"
+]
