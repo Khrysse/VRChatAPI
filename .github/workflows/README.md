@@ -22,9 +22,9 @@ You need to configure the following secrets in your GitHub repository:
 - Your Docker Hub access token (not your password)
 - To create a token:
   1. Log in to [Docker Hub](https://hub.docker.com)
-  2. Go to **Account Settings** → **Security**
-  3. Click on **New Access Token**
-  4. Give the token a name (e.g., "GitHub Actions")
+  2. Go to **Account Settings** → **Personal access tokens**
+  3. Click on **Generate new token**
+  4. Give the token a name (e.g., "GitHub Actions (VRChat Bridge)")
   5. Copy the generated token
 
 ## Usage
