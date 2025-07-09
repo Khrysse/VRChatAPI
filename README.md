@@ -33,7 +33,7 @@ Designed to handle authentication, token management, and provide cached access t
 - **Auto environment setup** with virtual environment creation & dependency installation
 - **Ready to deploy** on any server with Python 3.8+ (tested with YunoHost)
 - **Docker containerization** for easy deployment
-- **Apache + PHP** frontend for web interface
+- **Apache + PHP** frontend with URL rewriting support
 - **Supervisor** for process management
 - **Python-based scheduled tasks** for automated operations
 
@@ -140,6 +140,7 @@ VRChatAPI/
 ├── docker-compose.yml     # Docker Compose setup
 ├── requirements.txt       # Python dependencies
 ├── supervisord.conf      # Process management
+├── apache-config.conf    # Apache configuration
 ├── entrypoint.sh         # Container entrypoint
 ├── run.py                # Python bootstrap script
 └── app/cron_checker.py   # Scheduled tasks

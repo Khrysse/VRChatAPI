@@ -1,14 +1,32 @@
 RewriteEngine On
 
+# Error handling
 ErrorDocument 404 /hook
+ErrorDocument 500 /hook
 
+# Hook page routing
 RewriteCond %{REQUEST_URI} ^/hook$
 RewriteRule ^hook$ hook.php [L]
 
+# Prevent direct access to PHP files (except allowed ones)
 RewriteCond %{REQUEST_URI} !^/hook$
-RewriteRule ^hook\.php$ - [F] 
+RewriteRule ^hook\.php$ - [F]
 
+# API routing
 RewriteRule ^api/is_current$ api/is_current.php [L]
 
+# Prevent direct access to API PHP files
 RewriteCond %{REQUEST_URI} !^/api/is_current$
-RewriteRule ^api/is_current\.php$ - [F] 
+RewriteRule ^api/is_current\.php$ - [F]
+
+# Additional API endpoints
+RewriteRule ^api/cron/checkAuth$ api/cron/checkAuth.php [L]
+
+# Security: Prevent access to sensitive files
+<Files "*.json">
+    Require all denied
+</Files>
+
+<Files ".env">
+    Require all denied
+</Files> 
