@@ -1,6 +1,8 @@
 version: "3.8"
 services:
-  vrchat:
+  vrchat-bridge:
+    image: unstealable/vrchatbridge:latest
+    pull_policy: always
     build: .
     ports:
       - "${PORT}:${PORT}"
@@ -17,4 +19,4 @@ services:
       - TOKEN_FILE=${TOKEN_FILE}
       - IS_DISTANT=${IS_DISTANT}
       - DISTANT_URL_CONTEXT=${DISTANT_URL_CONTEXT}
-    container_name: vrchat_bridge
+    container_name: vrchat-bridge
