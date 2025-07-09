@@ -1,7 +1,7 @@
 let polling = true;
 function pollStatus() {
   if (!polling) return;
-  fetch("api/current?type=connected")
+  fetch("api/current.php?type=connected")
     .then((r) => r.json())
     .then((user) => {
       if (user && user.display_name) {
@@ -20,7 +20,7 @@ function pollStatus() {
       } else {
         document.getElementById("connected").classList.add("hidden");
       }
-      fetch("api/current?type=status")
+      fetch("api/current.php?type=status")
         .then((r) => r.json())
         .then((data) => {
           document.getElementById("loading").classList.add("hidden");

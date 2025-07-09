@@ -95,7 +95,7 @@ if ($status === 'CONNECTED') {
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hooks / US VRChat Bridge</title>
+    <title>US VRChat Bridge</title>
     <link rel="stylesheet" href="assets/css/design.css">
     <script type="text/javascript" src="assets/js/poll.js"></script>
 </head>
@@ -104,7 +104,7 @@ if ($status === 'CONNECTED') {
     <header class="header">
         <div class="header-content">
             <div class="logo">US</div>
-            <h1>VRChat Bridge's Hook</h1>
+            <h1>VRChat Bridge</h1>
         </div>
     </header>
 

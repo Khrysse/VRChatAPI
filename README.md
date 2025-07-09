@@ -97,7 +97,7 @@ Use the included GitHub Actions workflow to automatically build and push to Dock
 ### Access the API
 
 - **API Documentation**: `http://127.0.0.1:8080/docs`
-- **Web Interface**: `http://127.0.0.1:80` (for authentication)
+- **Web Interface**: `http://127.0.0.1:80` (main interface)
 - **Health Check**: `http://127.0.0.1:8080/api/health`
 
 #### Example API Calls
@@ -131,7 +131,7 @@ VRChatAPI/
 ├── php/                   # Web interface
 │   ├── api/               # PHP API endpoints
 │   ├── assets/            # CSS/JS assets
-│   └── hook.php           # Authentication interface
+│   └── index.php          # Main interface
 ├── python/                # Python utilities
 ├── .github/workflows/     # GitHub Actions
 │   ├── docker-push.yml    # Docker build workflow
