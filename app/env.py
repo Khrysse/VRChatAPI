@@ -13,7 +13,32 @@ DISTANT_URL_CONTEXT = os.getenv("DISTANT_URL_CONTEXT", "")
 PORT = os.environ.get("PORT", "8080")
 API_IS_PUBLIC = os.environ.get("API_IS_PUBLIC", "true").lower() in ("1", "true", "yes")
 API_DOMAIN = os.environ.get("API_DOMAIN", "unstealable.cloud")
-CORS_ALLOWED_ORIGINS = [
-    f"https://{API_DOMAIN}",
-    f"https://*.{API_DOMAIN}"
+# Build CORS origins list
+CORS_ALLOWED_ORIGINS = []
+
+# Add main domain
+CORS_ALLOWED_ORIGINS.append(f"https://{API_DOMAIN}")
+CORS_ALLOWED_ORIGINS.append(f"http://{API_DOMAIN}")
+
+# Add common subdomains
+common_subdomains = [
+    "www",
+    "api", 
+    "hook",
+    "vrchat-bridge",
+    "vrclookup",
+    "app",
+    "dashboard"
 ]
+
+for subdomain in common_subdomains:
+    CORS_ALLOWED_ORIGINS.append(f"https://{subdomain}.{API_DOMAIN}")
+    CORS_ALLOWED_ORIGINS.append(f"http://{subdomain}.{API_DOMAIN}")
+
+# Function to check if any subdomain is allowed
+def is_subdomain_allowed(origin: str) -> bool:
+    """Check if origin is any subdomain of our domain"""
+    import re
+    # Pattern: https://anything.domain.com or http://anything.domain.com
+    pattern = re.compile(r'^https?://[^.]+\.' + re.escape(API_DOMAIN) + r'$')
+    return bool(pattern.match(origin))

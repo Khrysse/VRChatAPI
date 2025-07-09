@@ -14,12 +14,12 @@ from app.api.vrchat_groups import router as groups
 from app.api.system import router as system
 from app.vrchat_context import get_context_safely
 from app.api.webhook_auth import router as webhook_auth
-from app.env import PORT, API_IS_PUBLIC, CORS_ALLOWED_ORIGINS
+from app.env import PORT, API_IS_PUBLIC, CORS_ALLOWED_ORIGINS, API_DOMAIN, is_subdomain_allowed
 
 
 def create_main_app():
     app = FastAPI(
-        title="US VRChat Bridge",
+        title="VRChat Bridge",
         description="""
 VRChat Bridge by Unstealable is a fast, secure, and lightweight proxy API for VRChat.
 
@@ -39,7 +39,7 @@ Built with FastAPI and async HTTPX for high performance and reliability.
         docs_url="/docs",
         redoc_url=None,
         openapi_url="/api.json",
-        contact={"name": "UnStealable", "url": "https://vrchat.com/home/user/usr_3e354294-5925-42bb-a5e6-511c39a390eb"}
+        contact={"name": "unstealable", "url": "https://vrchat.com/home/user/usr_3e354294-5925-42bb-a5e6-511c39a390eb"}
     )
 
     prefix = "/api"
@@ -82,7 +82,7 @@ Built with FastAPI and async HTTPX for high performance and reliability.
 
 def create_auth_webhook_app():
     from fastapi import FastAPI
-    app = FastAPI(title="K-API Auth Webhook")
+    app = FastAPI(title="VRChat Bridge Auth Webhook")
     app.include_router(webhook_auth, prefix="/webhook/auth", tags=["Auth Webhook"])
     app.include_router(system, prefix="/api", tags=["System"])
     return app
@@ -94,15 +94,31 @@ if __name__ == "__main__":
         uvicorn.run(create_main_app(), host="0.0.0.0", port=PORT, reload=True)
 
 app = create_main_app() 
+
+class SubdomainCORS:
+    """
+    Custom middleware to dynamically allow subdomains of our main domain.
+    """
+    def __init__(self, allowed_origins, api_domain):
+        self.allowed_origins = allowed_origins
+        self.api_domain = api_domain
+
+    def is_allowed(self, origin: str) -> bool:
+        return origin in self.allowed_origins or is_subdomain_allowed(origin)
+
 if API_IS_PUBLIC:
     allow_origins = ["*"]
+    custom_cors = None
 else:
-    allow_origins = [CORS_ALLOWED_ORIGINS]
+    allow_origins = CORS_ALLOWED_ORIGINS.copy()
+    custom_cors = SubdomainCORS(allow_origins, API_DOMAIN)
 
+# Use standard CORS middleware with comprehensive origins
 app.add_middleware(
     CORSMiddleware,
     allow_origins=allow_origins,
     allow_credentials=True,
-    allow_methods=["GET", "POST", "OPTIONS"],
+    allow_methods=["GET", "POST", "OPTIONS", "PUT", "DELETE"],
     allow_headers=["*"],
+    expose_headers=["*"]
 )
