@@ -35,7 +35,7 @@ Designed to handle authentication, token management, and provide cached access t
 - **Docker containerization** for easy deployment
 - **Apache + PHP** frontend for web interface
 - **Supervisor** for process management
-- **Cron jobs** for automated tasks
+- **Python-based scheduled tasks** for automated operations
 
 ---
 
@@ -141,7 +141,8 @@ VRChatAPI/
 ├── requirements.txt       # Python dependencies
 ├── supervisord.conf      # Process management
 ├── entrypoint.sh         # Container entrypoint
-└── run.py                # Python bootstrap script
+├── run.py                # Python bootstrap script
+└── app/cron_checker.py   # Scheduled tasks
 ```
 
 ---

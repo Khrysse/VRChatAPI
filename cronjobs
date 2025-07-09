@@ -1,3 +1,0 @@
-SHELL=/bin/bash
-APACHE_PORT=${APACHE_PORT:-8080}
-0 0 * * * curl -fsS http://localhost:$APACHE_PORT/api/cron/checkAuth.php > /dev/null
