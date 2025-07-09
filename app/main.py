@@ -1,3 +1,4 @@
+import os
 import sys
 import uvicorn
 from fastapi import FastAPI
@@ -8,7 +9,7 @@ from app.api.vrchat_groups import router as groups
 from app.api.system import router as system
 from app.vrchat_context import get_context_safely
 from app.api.webhook_auth import router as webhook_auth
-
+from app.env import PORT
 
 def create_main_app():
     app = FastAPI(
@@ -59,18 +60,17 @@ def create_auth_webhook_app():
     app.include_router(system, prefix="/api", tags=["System"])
     return app
 
-
 if __name__ == "__main__":
     if "--auth-mode" in sys.argv:
-        uvicorn.run(create_auth_webhook_app(), host="0.0.0.0", port=8080, reload=False)
+        uvicorn.run(create_auth_webhook_app(), host="0.0.0.0", port=PORT, reload=False)
     else:
-        uvicorn.run(create_main_app(), host="0.0.0.0", port=8080, reload=True)
+        uvicorn.run(create_main_app(), host="0.0.0.0", port=PORT, reload=True)
 
-app = create_main_app()  # Pour compatibilité avec uvicorn app.main:app
+app = create_main_app() 
 app.add_middleware(
     CORSMiddleware,
-        allow_origins=["*"],  # wildcard pour autoriser toutes les origines
+        allow_origins=["*"],
             allow_credentials=True,
-                allow_methods=["GET", "POST", "OPTIONS"],  # les méthodes dont vous avez besoin
-                    allow_headers=["*"],  # autorise tous les headers
+                allow_methods=["GET", "POST", "OPTIONS"], 
+                    allow_headers=["*"], 
                     )

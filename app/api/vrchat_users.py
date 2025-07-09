@@ -128,26 +128,3 @@ async def get_user_worlds(user_id: str, n: int = Query(default=100), offset: int
         raise HTTPException(status_code=r.status_code, detail=f"Failed to fetch user worlds info: {r.text}")
 
     return r.json()
-
-@router.get("/users/{user_id}/avatars")
-async def get_user_current_avatars(user_id: str):
-    """Get information about a current user avatars by its ID."""
-    vrchat = get_context_safely()
-    if not vrchat.auth_cookie or not vrchat.auth_cookie.startswith("authcookie_"):
-        raise HTTPException(status_code=401, detail="Token not found, please authenticate first")
-
-    auth_cookie = vrchat.auth_cookie
-    if not auth_cookie:
-        raise HTTPException(status_code=401, detail="Auth cookie missing in token")
-
-    headers = {"User-Agent": CLIENT_NAME}
-    cookies = {"auth": auth_cookie}
-    url = f"{API_BASE}/{user_id}/avatars"
-
-    async with httpx.AsyncClient() as client:
-        r = await client.get(url, headers=headers, cookies=cookies)
-
-    if r.status_code != 200:
-        raise HTTPException(status_code=r.status_code, detail=f"Failed to fetch own avatars info: {r.text}")
-
-    return r.json()

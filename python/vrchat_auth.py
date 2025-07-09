@@ -7,10 +7,10 @@ from pathlib import Path
 import os
 
 sys.path.append(str(Path(__file__).resolve().parent.parent)) 
-from app.env import CLIENT_NAME, API_BASE, TOKEN_FILE, IS_DISTANT, DISTANT_URL_CONTEXT 
+from app.env import CLIENT_NAME, API_BASE, TOKEN_FILE, IS_DISTANT, DISTANT_URL_CONTEXT, PORT
 from app.vrchat_context import get_context_safely
 
-WEBHOOK_URL = os.environ.get("WEBHOOK_URL", "http://localhost:8080/webhook/auth")
+WEBHOOK_URL = os.environ.get("WEBHOOK_URL", f"http://localhost:{PORT}/webhook/auth")
 
 def verify_auth_cookie(auth_cookie):
     cookies = {"auth": auth_cookie}

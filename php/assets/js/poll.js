@@ -1,7 +1,7 @@
 let polling = true;
 function pollStatus() {
   if (!polling) return;
-  fetch("api/is_current.php?type=connected")
+  fetch("api/current?type=connected")
     .then((r) => r.json())
     .then((user) => {
       if (user && user.display_name) {
@@ -15,13 +15,12 @@ function pollStatus() {
         document.getElementById("connected-user-id").href =
           "https://vrchat.com/home/user/" + user.user_id;
         document.getElementById("connected-user-id").innerText = user.user_id;
-        polling = false; // Stop polling
+        polling = false;
         return;
       } else {
         document.getElementById("connected").classList.add("hidden");
       }
-      // Si pas connecté, poll status/short
-      fetch("api/is_current.php?type=status")
+      fetch("api/current?type=status")
         .then((r) => r.json())
         .then((data) => {
           document.getElementById("loading").classList.add("hidden");

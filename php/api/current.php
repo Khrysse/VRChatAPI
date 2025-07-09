@@ -1,5 +1,6 @@
 <?php
-$local_api_base = 'http://localhost:8080';
+$api_port = getenv('PORT') ?: '8080';
+$local_api_base = 'http://localhost:'.$api_port;
 $api_path_prefix = '/webhook/auth';
 
 function api_get($url) {

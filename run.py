@@ -13,6 +13,7 @@ TOKEN_FILE = Path("data/auth/account.json")
 # Ajout PYTHONPATH pour que 'app' soit trouvé dans les subprocess
 project_root = os.path.abspath(os.path.dirname(__file__))
 os.environ["PYTHONPATH"] = project_root + os.pathsep + os.environ.get("PYTHONPATH", "")
+port = os.environ.get("PORT", "8080")
 
 def create_venv():
     print("Creating virtual environment...", flush=True)
@@ -76,7 +77,7 @@ def main():
         print("Valid token found, launching server normally.", flush=True)
         run_in_venv([
             "-m", "uvicorn", "app.main:app",
-            "--host", "0.0.0.0", "--port", "8080", "--reload"
+            "--host", "0.0.0.0", "--port", port, "--reload"
         ], env=env)
     else:
         print("No valid token found, launching auth mode (server + login)...", flush=True)
@@ -117,7 +118,7 @@ def main():
             print("Starting main FastAPI server...", flush=True)
             subprocess.run([
                 python_bin, "-m", "uvicorn", "app.main:app",
-                "--host", "0.0.0.0", "--port", "8080", "--reload"
+                "--host", "0.0.0.0", "--port", port, "--reload"
             ], env=env)
         except Exception as e:
             print(f"Unexpected error during authentication: {e}", flush=True)
