@@ -36,9 +36,12 @@ Features:
 Built with FastAPI and async HTTPX for high performance and reliability.
 """,
         swagger_ui_parameters={"defaultModelsExpandDepth": -1},
+        swagger_favicon_url="https://cdn.unstealable.com/vrchat-bridge/favicon/favicon-96x96.png",
         docs_url="/docs",
         redoc_url=None,
-        openapi_url="/api.json",
+        oauth2_redirect_url=None,
+        init_oauth=None,
+        openapi_url="/docs/api.json",
         contact={"name": "unstealable", "url": "https://vrchat.com/home/user/usr_3e354294-5925-42bb-a5e6-511c39a390eb"}
     )
 

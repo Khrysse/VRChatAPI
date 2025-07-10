@@ -1,3 +1,5 @@
+![VRChat Bridge (Logo Full)](https://cdn.unstealable.cloud/vrchat-bridge/images/logo.full.png)
+
 # Docker Hub Push Workflow
 
 This workflow allows you to automatically build and push Docker images to Docker Hub.

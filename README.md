@@ -1,7 +1,12 @@
+<center>
+<img src="https://cdn.unstealable.cloud/vrchat-bridge/images/logo.min.png" alt="VRChat Bridge (Min Logo)" width="150">
+
 # VRChat Bridge API
 
 A lightweight, fast, and secure **FastAPI** proxy server for the [VRChat API](https://vrchat.community/getting-started).  
 Designed to handle authentication, token management, and provide cached access to public and private VRChat data endpoints.
+
+</center>
 
 ---
 

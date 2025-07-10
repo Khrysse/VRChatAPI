@@ -95,7 +95,13 @@ if ($status === 'CONNECTED') {
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>US VRChat Bridge</title>
+    <title>VRChat Bridge</title>
+    <link rel="icon" type="image/png" href="/assets/favicon/favicon-96x96.png" sizes="96x96" />
+    <link rel="icon" type="image/svg+xml" href="/assets/favicon/favicon.svg" />
+    <link rel="shortcut icon" href="/assets/favicon/favicon.ico" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/assets/favicon/apple-touch-icon.png" />
+    <meta name="apple-mobile-web-app-title" content="VRChat Bridge" />
+    <link rel="manifest" href="/assets/favicon/site.webmanifest" />
     <link rel="stylesheet" href="assets/css/design.css">
     <script type="text/javascript" src="assets/js/poll.js"></script>
 </head>
@@ -103,7 +109,7 @@ if ($status === 'CONNECTED') {
     <!-- Header -->
     <header class="header">
         <div class="header-content">
-            <div class="logo">US</div>
+            <div class="logo">VB</div>
             <h1>VRChat Bridge</h1>
         </div>
     </header>
@@ -112,7 +118,7 @@ if ($status === 'CONNECTED') {
     <main class="main">
         <div class="card">
             <div class="card-header">
-                <div class="card-logo">US</div>
+                <div class="card-logo">VB</div>
                 <h2 class="card-title">Authentication</h2>
                 <p class="card-description">Connect to VRChat API services via VRChat Bridge</p>
             </div>
@@ -188,7 +194,7 @@ if ($status === 'CONNECTED') {
     <footer class="footer">
         <div class="footer-content">
             <p class="footer-text">
-                This application is not affiliated with, endorsed by, or connected to VRChat Inc. VRChat is a trademark of VRChat Inc. This is an independent third-party tool.
+                VRChat Bridge is not affiliated with, endorsed by, or connected to VRChat Inc. VRChat is a trademark of VRChat Inc. This is an independent third-party tool.
             </p>
             <p class="footer-small">For educational, personal and development purposes only.</p>
         </div>
