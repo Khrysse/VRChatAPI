@@ -281,7 +281,7 @@ Feature requests and bug reports are welcome!
 
 ## 📄 License
 
-MIT License © 2025 Kryscau (K-API)
+MIT License © 2025 Unstealable (VRChat Bridge)
 
 ---
 
