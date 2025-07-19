@@ -42,6 +42,15 @@ Designed to handle authentication, token management, and provide cached access t
 - **Supervisor** for process management
 - **Python-based scheduled tasks** for automated operations
 
+### Security Features
+
+- **Rate limiting**: 60 requests/minute and 1000 requests/hour per IP
+- **Input validation**: Strict validation of all VRChat IDs and parameters
+- **Security headers**: Comprehensive HTTP security headers (XSS, CSRF, etc.)
+- **Error sanitization**: Generic error messages to prevent information disclosure
+- **CORS protection**: Secure cross-origin configuration with subdomain validation
+- **Request timeout handling**: Protection against slow/hanging requests
+
 ---
 
 ## 🛠️ Getting Started
@@ -120,7 +129,7 @@ Returns private user data accessible with your token.
 ## 📁 Project Structure
 
 ```
-VRChatAPI/
+VRChatBridgeAPI/
 ├── app/                    # FastAPI application
 │   ├── api/               # API route modules
 │   │   ├── system.py      # System endpoints
@@ -130,8 +139,10 @@ VRChatAPI/
 │   │   ├── vrchat_avatars.py  # Avatar management
 │   │   ├── vrchat_search.py   # Search functionality
 │   │   └── webhook_auth.py    # Authentication webhooks
-│   ├── main.py            # FastAPI app creation
+│   ├── main.py            # FastAPI app creation & middleware
 │   ├── env.py             # Environment configuration
+│   ├── utils.py           # Security utilities & validation
+│   ├── middleware.py      # Rate limiting & security middleware
 │   └── vrchat_context.py  # VRChat context management
 ├── php/                   # Web interface
 │   ├── api/               # PHP API endpoints
@@ -148,7 +159,8 @@ VRChatAPI/
 ├── apache-config.conf    # Apache configuration
 ├── entrypoint.sh         # Container entrypoint
 ├── run.py                # Python bootstrap script
-└── app/cron_checker.py   # Scheduled tasks
+├── CLAUDE.md             # Development guidance
+└── python/cron_checker.py # Scheduled tasks
 ```
 
 ---
@@ -162,12 +174,19 @@ VRChatAPI/
 | `PORT`                 | API server port          | `8080`                           |
 | `APACHE_PORT`          | Apache web server port   | `80`                             |
 | `API_IS_PUBLIC`        | Enable public API access | `true`                           |
-| `CORS_ALLOWED_ORIGINS` | CORS allowed origins     | `*`                              |
+| `CORS_ALLOWED_ORIGINS` | Base domain for CORS     | `unstealable.cloud`              |
 | `CLIENT_NAME`          | VRChat client name       | `default-client-name`            |
 | `VRCHAT_API_BASE`      | VRChat API base URL      | `https://api.vrchat.cloud/api/1` |
 | `TOKEN_FILE`           | Token storage file path  | `data/auth/account.json`         |
 | `IS_DISTANT`           | Enable distant mode      | `false`                          |
 | `DISTANT_URL_CONTEXT`  | Distant URL context      | `""`                             |
+
+### CORS Configuration
+
+- **Public Mode** (`API_IS_PUBLIC=true`): Allows all origins (`*`) without credentials for maximum compatibility
+- **Private Mode** (`API_IS_PUBLIC=false`): Restricts to `CORS_ALLOWED_ORIGINS` domain and its subdomains with credentials enabled
+
+> **Security Note**: Public mode is suitable for open APIs, while private mode provides enhanced security for authenticated endpoints.
 
 ### Docker Configuration
 
@@ -191,11 +210,29 @@ Automated workflow for Docker Hub deployment:
 
 ## 🔒 Security & Privacy
 
+### Data Protection
+
 - Your VRChat credentials and tokens are stored **locally** in JSON files inside the `data/auth/` directory
 - No credentials or tokens are ever sent to third-party servers
 - Use HTTPS and proper firewall rules when deploying publicly
 - Web interface provides secure authentication flow
-- All API endpoints include proper error handling and validation
+
+### Security Measures
+
+- **Rate Limiting**: Automatic protection against API abuse (60 req/min, 1000 req/hour per IP)
+- **Input Validation**: All VRChat IDs and parameters are strictly validated using regex patterns
+- **Error Handling**: Generic error messages prevent information disclosure to attackers
+- **Security Headers**: Comprehensive HTTP security headers (XSS, CSRF, clickjacking protection)
+- **CORS Protection**: Secure cross-origin configuration with validated subdomain support
+- **Timeout Protection**: All requests have proper timeout handling to prevent resource exhaustion
+
+### Security Best Practices
+
+- Deploy behind a reverse proxy (Nginx/Apache) with SSL termination
+- Use environment variables for sensitive configuration
+- Regularly monitor logs for suspicious activity
+- Keep the application updated with security patches
+- Consider using a Web Application Firewall (WAF) for additional protection
 
 ---
 
@@ -243,24 +280,43 @@ docker-compose up -d
 
 ## 📊 API Endpoints Overview
 
-### Public Endpoints
+### System Endpoints
 
-- `GET /api/health` - Health check
-- `GET /api/public/groups/{group_id}` - Group information
-- `GET /api/public/users/{user_id}` - Public user data
+- `GET /api/health` - Health check and system status
 
-### Private Endpoints (Require Authentication)
+### User Endpoints (Require Authentication)
 
-- `GET /api/private/users/{user_id}` - Private user data
-- `GET /api/private/groups/{group_id}` - Private group data
-- `POST /api/search/users` - User search
-- `POST /api/search/worlds` - World search
+- `GET /api/users/me` - Get current authenticated user profile
+- `GET /api/users/{user_id}` - Get user profile by ID
+- `GET /api/users/{user_id}/friends/status` - Get friend status with user
+- `GET /api/users/{user_id}/groups` - Get user's group memberships
+- `GET /api/users/{user_id}/worlds` - Get user's created worlds (paginated)
+
+### Group Endpoints (Require Authentication)
+
+- `GET /api/groups/{group_id}` - Get group information
+- `GET /api/groups/{group_id}/instances` - Get group instances
+- `GET /api/groups/{group_id}/posts` - Get group posts (paginated)
+- `GET /api/groups/{group_id}/bans` - Get group ban list (paginated)
+
+### World Endpoints (Require Authentication)
+
+- `GET /api/worlds/{world_id}` - Get world information
+- `GET /api/worlds/{world_id}/metadata` - Get world metadata
+- `GET /api/worlds/{world_id}/{instance_id}` - Get specific world instance
+
+### Search Endpoints (Require Authentication)
+
+- `POST /api/search/users` - Search for users
+- `POST /api/search/worlds` - Search for worlds
 
 ### Webhook Endpoints
 
 - `POST /webhook/auth/login` - Authentication login
 - `POST /webhook/auth/2fa` - Two-factor authentication
 - `GET /webhook/auth/status` - Authentication status
+
+> **Note**: All endpoints include automatic input validation, rate limiting, and error sanitization for security.
 
 ---
 
@@ -281,7 +337,7 @@ Feature requests and bug reports are welcome!
 
 ## 📄 License
 
-MIT License © 2025 Unstealable (VRChat Bridge)
+MIT License © 2025 Kryscau (K-API)
 
 ---
 
@@ -296,4 +352,4 @@ MIT License © 2025 Unstealable (VRChat Bridge)
 
 ---
 
-Made with ❤️ by [Unstealable](https://unstealable.github.io).
+Made with ❤️ by [Unstealable ](https://unstealable.github.io).

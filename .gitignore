@@ -7,3 +7,4 @@ venv/
 .env
 data/
 account.json.php
+CLAUDE.md

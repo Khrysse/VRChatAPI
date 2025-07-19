@@ -8,13 +8,16 @@ from fastapi.requests import Request
 from fastapi.exception_handlers import RequestValidationError
 from fastapi.exceptions import HTTPException
 from starlette.status import HTTP_500_INTERNAL_SERVER_ERROR
+from starlette.middleware.base import BaseHTTPMiddleware
 from app.api.vrchat_search import router as search
 from app.api.vrchat_users import router as users
 from app.api.vrchat_groups import router as groups
+from app.api.vrchat_worlds import router as worlds
 from app.api.system import router as system
 from app.vrchat_context import get_context_safely
 from app.api.webhook_auth import router as webhook_auth
 from app.env import PORT, API_IS_PUBLIC, CORS_ALLOWED_ORIGINS, API_DOMAIN, is_subdomain_allowed
+from app.middleware import SecurityHeadersMiddleware, RateLimitMiddleware
 
 
 def create_main_app():
@@ -51,6 +54,7 @@ Built with FastAPI and async HTTPX for high performance and reliability.
         if vrchat and getattr(vrchat, "auth_cookie", None) and vrchat.auth_cookie.startswith("authcookie_"):
             app.include_router(users, prefix=prefix, tags=["Users"])
             app.include_router(groups, prefix=prefix, tags=["Groups"])
+            app.include_router(worlds, prefix=prefix, tags=["Worlds"])
             app.include_router(search, prefix=prefix, tags=["Search"])
         else:
             print("[WARN] No valid VRChat token found. Only public/system endpoints will be available.", flush=True)
@@ -79,6 +83,10 @@ Built with FastAPI and async HTTPX for high performance and reliability.
             status_code=HTTP_500_INTERNAL_SERVER_ERROR,
             content={"error": "Internal server error"}
         )
+
+    # Add security and rate limiting middleware
+    app.add_middleware(SecurityHeadersMiddleware)
+    app.add_middleware(RateLimitMiddleware, calls_per_minute=60, calls_per_hour=1000)
 
     return app
 
@@ -110,18 +118,20 @@ class SubdomainCORS:
         return origin in self.allowed_origins or is_subdomain_allowed(origin)
 
 if API_IS_PUBLIC:
+    # Public mode: allow all origins without credentials for maximum compatibility
     allow_origins = ["*"]
-    custom_cors = None
+    allow_credentials = False  # Never use credentials with wildcard origins
 else:
+    # Private mode: restrict to specific domains with credentials
     allow_origins = CORS_ALLOWED_ORIGINS.copy()
-    custom_cors = SubdomainCORS(allow_origins, API_DOMAIN)
+    allow_credentials = True
 
-# Use standard CORS middleware with comprehensive origins
+# Use standard CORS middleware with secure configuration
 app.add_middleware(
     CORSMiddleware,
     allow_origins=allow_origins,
-    allow_credentials=True,
-    allow_methods=["GET", "POST", "OPTIONS", "PUT", "DELETE"],
-    allow_headers=["*"],
-    expose_headers=["*"]
+    allow_credentials=allow_credentials,
+    allow_methods=["GET", "POST", "OPTIONS"],  # Restrict to needed methods only
+    allow_headers=["Content-Type", "Authorization", "User-Agent"],  # Specific headers only
+    expose_headers=["Content-Type"]  # Limit exposed headers
 )

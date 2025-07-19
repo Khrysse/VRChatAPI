@@ -4,125 +4,115 @@ import json
 from typing import Optional
 from app.env import CLIENT_NAME, API_BASE
 from app.vrchat_context import get_context_safely
+from app.utils import (
+    validate_vrchat_group_id,
+    validate_pagination_params,
+    make_vrchat_request,
+    handle_vrchat_response
+)
 router = APIRouter()
 
 @router.get("/groups/{group_id}")
 async def get_groups(group_id: str):
     """Get information about a specific group by its ID."""
+    # Validate input
+    group_id = validate_vrchat_group_id(group_id)
+    
     vrchat = get_context_safely()
     if not vrchat.auth_cookie or not vrchat.auth_cookie.startswith("authcookie_"):
-        raise HTTPException(status_code=401, detail="Token not found, please authenticate first")
-
-    auth_cookie = vrchat.auth_cookie
-    if not auth_cookie:
-        raise HTTPException(status_code=401, detail="Auth cookie missing in token")
+        raise HTTPException(status_code=401, detail="Authentication required")
 
     headers = {"User-Agent": CLIENT_NAME}
-    cookies = {"auth": auth_cookie}
+    cookies = {"auth": vrchat.auth_cookie}
     params = {
         "includeRoles": "true",
         "purpose": "group"
     }
-    url = f"{API_BASE}/groups/{group_id}"
-
-    async with httpx.AsyncClient() as client:
-        r = await client.get(url, headers=headers, cookies=cookies, params=params)
-
-    if r.status_code != 200:
-        raise HTTPException(status_code=r.status_code, detail=f"Failed to fetch group info: {r.text}")
-
-    return r.json()
+    
+    try:
+        async with httpx.AsyncClient(timeout=10.0) as client:
+            response = await client.get(f"{API_BASE}/groups/{group_id}", headers=headers, cookies=cookies, params=params)
+    except httpx.TimeoutException:
+        raise HTTPException(status_code=504, detail="VRChat API timeout")
+    except httpx.RequestError:
+        raise HTTPException(status_code=502, detail="VRChat API unavailable")
+        
+    return handle_vrchat_response(response, "get group")
 
 @router.get("/groups/{group_id}/instances")
 async def get_groups_instances(group_id: str):
     """Get instances of a specific group by its ID."""
-    """This endpoint requires the group ID to be passed as a query parameter."""
+    # Validate input
+    group_id = validate_vrchat_group_id(group_id)
+    
     vrchat = get_context_safely()
     if not vrchat.auth_cookie or not vrchat.auth_cookie.startswith("authcookie_"):
-        raise HTTPException(status_code=401, detail="Token not found, please authenticate first")
-
-    auth_cookie = vrchat.auth_cookie
-    if not auth_cookie:
-        raise HTTPException(status_code=401, detail="Auth cookie missing in token")
+        raise HTTPException(status_code=401, detail="Authentication required")
 
     headers = {"User-Agent": CLIENT_NAME}
-    cookies = {"auth": auth_cookie}
+    cookies = {"auth": vrchat.auth_cookie}
     url = f"{API_BASE}/groups/{group_id}/instances"
 
-    async with httpx.AsyncClient() as client:
-        r = await client.get(url, headers=headers, cookies=cookies)
-
-    if r.status_code != 200:
-        raise HTTPException(status_code=r.status_code, detail=f"Failed to fetch groups instances info: {r.text}")
-
-    return r.json()
+    response = await make_vrchat_request(url, headers, cookies)
+    return handle_vrchat_response(response, "get group instances")
 
 @router.get("/groups/{group_id}/posts")
 async def get_groups_posts(group_id: str, n: int = Query(default=10), offset: int = Query(default=0)):
-    """Get posts of a specific group by its ID."""
-    """This endpoint requires the group ID to be passed as a query parameter."""
-    """The group ID is used to fetch the posts related to the group."""
-    """The posts are returned in a paginated format with a default of 10 posts per page."""
-    """You can adjust the number of posts per page by changing the 'n' parameter."""
-    """The 'offset' parameter can be used to fetch posts starting from a specific index."""
+    """Get posts of a specific group by its ID with pagination support."""
+    # Validate inputs
+    group_id = validate_vrchat_group_id(group_id)
+    offset, n = validate_pagination_params(offset, n)
+    
     vrchat = get_context_safely()
     if not vrchat.auth_cookie or not vrchat.auth_cookie.startswith("authcookie_"):
-        raise HTTPException(status_code=401, detail="Token not found, please authenticate first")
-
-    auth_cookie = vrchat.auth_cookie
-    if not auth_cookie:
-        raise HTTPException(status_code=401, detail="Auth cookie missing in token")
+        raise HTTPException(status_code=401, detail="Authentication required")
 
     headers = {"User-Agent": CLIENT_NAME}
-    cookies = {"auth": auth_cookie}
+    cookies = {"auth": vrchat.auth_cookie}
     params = {
         "n": str(n),
         "offset": str(offset),  
         "publicOnly": False
     }
-    url = f"{API_BASE}/groups/{group_id}/posts"
-
-    async with httpx.AsyncClient() as client:
-        r = await client.get(url, headers=headers, cookies=cookies, params=params)
-
-    if r.status_code != 200:
-        raise HTTPException(status_code=r.status_code, detail=f"Failed to fetch groups posts info: {r.text}")
-
-    return r.json()
+    
+    try:
+        async with httpx.AsyncClient(timeout=10.0) as client:
+            response = await client.get(f"{API_BASE}/groups/{group_id}/posts", headers=headers, cookies=cookies, params=params)
+    except httpx.TimeoutException:
+        raise HTTPException(status_code=504, detail="VRChat API timeout")
+    except httpx.RequestError:
+        raise HTTPException(status_code=502, detail="VRChat API unavailable")
+        
+    return handle_vrchat_response(response, "get group posts")
 
 
 @router.get("/groups/{group_id}/bans")
 async def get_groups_bans(group_id: str, n: int = Query(default=51), offset: int = Query(default=0)):
-    """Get bans of a specific group by its ID."""
-    """This endpoint requires the group ID to be passed as a query parameter."""
-    """The group ID is used to fetch the bans related to the group."""
-    """The bans are returned in a paginated format with a default of 51 bans per page."""
-    """You can adjust the number of bans per page by changing the 'n' parameter."""
-    """The 'offset' parameter can be used to fetch bans starting from a specific index."""
-    """This endpoint is useful for managing group bans and retrieving information about banned users."""
+    """Get bans of a specific group by its ID with pagination support."""
+    # Validate inputs
+    group_id = validate_vrchat_group_id(group_id)
+    offset, n = validate_pagination_params(offset, n)
+    
     vrchat = get_context_safely()
     if not vrchat.auth_cookie or not vrchat.auth_cookie.startswith("authcookie_"):
-        raise HTTPException(status_code=401, detail="Token not found, please authenticate first")
-
-    auth_cookie = vrchat.auth_cookie
-    if not auth_cookie:
-        raise HTTPException(status_code=401, detail="Auth cookie missing in token")
+        raise HTTPException(status_code=401, detail="Authentication required")
 
     headers = {"User-Agent": CLIENT_NAME}
-    cookies = {"auth": auth_cookie}
+    cookies = {"auth": vrchat.auth_cookie}
     params = {
         "n": str(n),
         "offset": str(offset),
     }
-    url = f"{API_BASE}/groups/{group_id}/bans"
-
-    async with httpx.AsyncClient() as client:
-        r = await client.get(url, headers=headers, cookies=cookies, params=params)
-
-    if r.status_code != 200:
-        raise HTTPException(status_code=r.status_code, detail=f"Failed to fetch groups bans info: {r.text}")
-
-    return r.json()
+    
+    try:
+        async with httpx.AsyncClient(timeout=10.0) as client:
+            response = await client.get(f"{API_BASE}/groups/{group_id}/bans", headers=headers, cookies=cookies, params=params)
+    except httpx.TimeoutException:
+        raise HTTPException(status_code=504, detail="VRChat API timeout")
+    except httpx.RequestError:
+        raise HTTPException(status_code=502, detail="VRChat API unavailable")
+        
+    return handle_vrchat_response(response, "get group bans")
 
 @router.get("/groups/{group_id}/roles")
 async def get_groups_roles(group_id: str):
